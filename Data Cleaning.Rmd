@@ -1,0 +1,479 @@
+---
+title: "Data Cleaning"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(stringi)
+library(dplyr)
+library(corrplot)
+library(GGally)
+```
+
+```{r}
+#Data Sources downloaded from Basketball Reference "nbaStats____.csv" and Hoopshype "nbaSalary____.csv"
+
+#Read in CSV
+nbadata2020 <- read.csv("nbaStats2020.csv")
+salary2020 <- read.csv("nbaSalary2020.csv")
+
+#Remove Accent Marks
+Player <-  stri_trans_general(str = nbadata2020$Player, id = "Latin-ASCII")
+
+#Remove $ from Salary
+salary2020$Salary <- as.numeric(gsub('[$,]', '', salary2020$Salary))
+salary2020$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2020$Salary..Inflation.))
+
+#Basketball Reference attaches player codes after each player, ex: "Steven Adams\adamsst01". We'll remove the code and keep only the name
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2020[["Player"]] <- Player
+
+#One weird case, Basketball Reference lists Lou Williams as "Lou Williams" but HoopsHype lists him as "Louis Williams". We'll manually change the name so that we can merge the data sets together
+salary2020 <- within(salary2020, Player[Player == "Louis Williams"] <- "Lou Williams")
+
+#Merge datasets together based on Player Name
+nbadata2020 <- merge(x = nbadata2020, y = salary2020, by = "Player")
+
+#Change missing values to 0. (All missing values in this context can be represented as zero as they only appear in a 0 /0 calculation, i.e if a player has zero three pointer attempts and zero three pointers made, their three point percentage is 0/0 resulting in a missing value.)
+nbadata2020[is.na(nbadata2020)] <- 0
+
+#Filter and keep players who have played a reasonable amount of games a specific season, we decided to choose players that have played at least 21 games
+nbadata2020 <- subset(nbadata2020, G > 20)
+
+
+#Repeat the same steps for all seasons 1991-2019
+
+
+nbadata2019 <- read.csv("nbaStats2019.csv")
+salary2019 <- read.csv("nbaSalary2019.csv")
+Player <-  stri_trans_general(str = nbadata2019$Player, id = "Latin-ASCII")
+salary2019$Salary <- as.numeric(gsub('[$,]', '', salary2019$Salary))
+salary2019$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2019$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2019[["Player"]] <- Player
+salary2019 <- within(salary2019, Player[Player == "Louis Williams"] <- "Lou Williams")
+nbadata2019 <- merge(x = nbadata2019, y = salary2019, by = "Player")
+nbadata2019[is.na(nbadata2019)] <- 0
+nbadata2019 <- subset(nbadata2019, G > 20)
+
+nbadata2018 <- read.csv("nbaStats2018.csv")
+salary2018 <- read.csv("nbaSalary2018.csv")
+Player <-  stri_trans_general(str = nbadata2018$Player, id = "Latin-ASCII")
+salary2018$Salary <- as.numeric(gsub('[$,]', '', salary2018$Salary))
+salary2018$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2018$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2018[["Player"]] <- Player
+salary2018 <- within(salary2018, Player[Player == "Louis Williams"] <- "Lou Williams")
+nbadata2018 <- merge(x = nbadata2018, y = salary2018, by = "Player")
+nbadata2018[is.na(nbadata2018)] <- 0
+nbadata2018 <- subset(nbadata2018, G > 20)
+
+nbadata2017 <- read.csv("nbaStats2017.csv")
+salary2017 <- read.csv("nbaSalary2017.csv")
+Player <-  stri_trans_general(str = nbadata2017$Player, id = "Latin-ASCII")
+salary2017$Salary <- as.numeric(gsub('[$,]', '', salary2017$Salary))
+salary2017$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2017$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2017[["Player"]] <- Player
+salary2017 <- within(salary2017, Player[Player == "Louis Williams"] <- "Lou Williams")
+nbadata2017 <- merge(x = nbadata2017, y = salary2017, by = "Player")
+nbadata2017[is.na(nbadata2017)] <- 0
+nbadata2017 <- subset(nbadata2017, G > 20)
+
+nbadata2016 <- read.csv("nbaStats2016.csv")
+salary2016 <- read.csv("nbaSalary2016.csv")
+Player <-  stri_trans_general(str = nbadata2016$Player, id = "Latin-ASCII")
+salary2016$Salary <- as.numeric(gsub('[$,]', '', salary2016$Salary))
+salary2016$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2016$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2016[["Player"]] <- Player
+salary2016 <- within(salary2016, Player[Player == "Louis Williams"] <- "Lou Williams")
+nbadata2016 <- merge(x = nbadata2016, y = salary2016, by = "Player")
+nbadata2016[is.na(nbadata2016)] <- 0
+nbadata2016 <- subset(nbadata2016, G > 20)
+
+nbadata2015 <- read.csv("nbaStats2015.csv")
+salary2015 <- read.csv("nbaSalary2015.csv")
+Player <-  stri_trans_general(str = nbadata2015$Player, id = "Latin-ASCII")
+salary2015$Salary <- as.numeric(gsub('[$,]', '', salary2015$Salary))
+salary2015$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2015$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2015[["Player"]] <- Player
+salary2015 <- within(salary2015, Player[Player == "Louis Williams"] <- "Lou Williams")
+nbadata2015 <- merge(x = nbadata2015, y = salary2015, by = "Player")
+nbadata2015[is.na(nbadata2015)] <- 0
+nbadata2015 <- subset(nbadata2015, G > 20)
+
+nbadata2014 <- read.csv("nbaStats2014.csv")
+salary2014 <- read.csv("nbaSalary2014.csv")
+Player <-  stri_trans_general(str = nbadata2014$Player, id = "Latin-ASCII")
+salary2014$Salary <- as.numeric(gsub('[$,]', '', salary2014$Salary))
+salary2014$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2014$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2014[["Player"]] <- Player
+salary2014 <- within(salary2014, Player[Player == "Louis Williams"] <- "Lou Williams")
+nbadata2014 <- merge(x = nbadata2014, y = salary2014, by = "Player")
+nbadata2014[is.na(nbadata2014)] <- 0
+nbadata2014 <- subset(nbadata2014, G > 20)
+
+nbadata2013 <- read.csv("nbaStats2013.csv")
+salary2013 <- read.csv("nbaSalary2013.csv")
+Player <-  stri_trans_general(str = nbadata2013$Player, id = "Latin-ASCII")
+salary2013$Salary <- as.numeric(gsub('[$,]', '', salary2013$Salary))
+salary2013$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2013$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2013[["Player"]] <- Player
+salary2013 <- within(salary2013, Player[Player == "Louis Williams"] <- "Lou Williams")
+nbadata2013 <- merge(x = nbadata2013, y = salary2013, by = "Player")
+nbadata2013[is.na(nbadata2013)] <- 0
+nbadata2013 <- subset(nbadata2013, G > 20)
+
+nbadata2012 <- read.csv("nbaStats2012.csv")
+salary2012 <- read.csv("nbaSalary2012.csv")
+Player <-  stri_trans_general(str = nbadata2012$Player, id = "Latin-ASCII")
+salary2012$Salary <- as.numeric(gsub('[$,]', '', salary2012$Salary))
+salary2012$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2012$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2012[["Player"]] <- Player
+salary2012 <- within(salary2012, Player[Player == "Louis Williams"] <- "Lou Williams")
+nbadata2012 <- merge(x = nbadata2012, y = salary2012, by = "Player")
+nbadata2012[is.na(nbadata2012)] <- 0
+nbadata2012 <- subset(nbadata2012, G > 20)
+
+nbadata2011 <- read.csv("nbaStats2011.csv")
+salary2011 <- read.csv("nbaSalary2011.csv")
+Player <-  stri_trans_general(str = nbadata2011$Player, id = "Latin-ASCII")
+salary2011$Salary <- as.numeric(gsub('[$,]', '', salary2011$Salary))
+salary2011$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2011$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2011[["Player"]] <- Player
+salary2011 <- within(salary2011, Player[Player == "Louis Williams"] <- "Lou Williams")
+nbadata2011 <- merge(x = nbadata2011, y = salary2011, by = "Player")
+nbadata2011[is.na(nbadata2011)] <- 0
+nbadata2011 <- subset(nbadata2011, G > 20)
+
+nbadata2010 <- read.csv("nbaStats2010.csv")
+salary2010 <- read.csv("nbaSalary2010.csv")
+Player <-  stri_trans_general(str = nbadata2010$Player, id = "Latin-ASCII")
+salary2010$Salary <- as.numeric(gsub('[$,]', '', salary2010$Salary))
+salary2010$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2010$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2010[["Player"]] <- Player
+salary2010 <- within(salary2010, Player[Player == "Louis Williams"] <- "Lou Williams")
+nbadata2010 <- merge(x = nbadata2010, y = salary2010, by = "Player")
+nbadata2010[is.na(nbadata2010)] <- 0
+nbadata2010 <- subset(nbadata2010, G > 20)
+
+nbadata2009 <- read.csv("nbaStats2009.csv")
+salary2009 <- read.csv("nbaSalary2009.csv")
+Player <-  stri_trans_general(str = nbadata2009$Player, id = "Latin-ASCII")
+salary2009$Salary <- as.numeric(gsub('[$,]', '', salary2009$Salary))
+salary2009$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2009$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2009[["Player"]] <- Player
+salary2009 <- within(salary2009, Player[Player == "Louis Williams"] <- "Lou Williams")
+nbadata2009 <- merge(x = nbadata2009, y = salary2009, by = "Player")
+nbadata2009[is.na(nbadata2009)] <- 0
+nbadata2009 <- subset(nbadata2009, G > 20)
+
+nbadata2008 <- read.csv("nbaStats2008.csv")
+salary2008 <- read.csv("nbaSalary2008.csv")
+Player <-  stri_trans_general(str = nbadata2008$Player, id = "Latin-ASCII")
+salary2008$Salary <- as.numeric(gsub('[$,]', '', salary2008$Salary))
+salary2008$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2008$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2008[["Player"]] <- Player
+salary2008 <- within(salary2008, Player[Player == "Louis Williams"] <- "Lou Williams")
+nbadata2008 <- merge(x = nbadata2008, y = salary2008, by = "Player")
+nbadata2008[is.na(nbadata2008)] <- 0
+nbadata2008 <- subset(nbadata2008, G > 20)
+
+nbadata2007 <- read.csv("nbaStats2007.csv")
+salary2007 <- read.csv("nbaSalary2007.csv")
+Player <-  stri_trans_general(str = nbadata2007$Player, id = "Latin-ASCII")
+salary2007$Salary <- as.numeric(gsub('[$,]', '', salary2007$Salary))
+salary2007$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2007$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2007[["Player"]] <- Player
+salary2007 <- within(salary2007, Player[Player == "Louis Williams"] <- "Lou Williams")
+nbadata2007 <- merge(x = nbadata2007, y = salary2007, by = "Player")
+nbadata2007[is.na(nbadata2007)] <- 0
+nbadata2007 <- subset(nbadata2007, G > 20)
+
+nbadata2006 <- read.csv("nbaStats2006.csv")
+salary2006 <- read.csv("nbaSalary2006.csv")
+Player <-  stri_trans_general(str = nbadata2006$Player, id = "Latin-ASCII")
+salary2006$Salary <- as.numeric(gsub('[$,]', '', salary2006$Salary))
+salary2006$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2006$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2006[["Player"]] <- Player
+salary2006 <- within(salary2006, Player[Player == "Louis Williams"] <- "Lou Williams")
+nbadata2006 <- merge(x = nbadata2006, y = salary2006, by = "Player")
+nbadata2006[is.na(nbadata2006)] <- 0
+nbadata2006 <- subset(nbadata2006, G > 20)
+
+nbadata2005 <- read.csv("nbaStats2005.csv")
+salary2005 <- read.csv("nbaSalary2005.csv")
+Player <-  stri_trans_general(str = nbadata2005$Player, id = "Latin-ASCII")
+salary2005$Salary <- as.numeric(gsub('[$,]', '', salary2005$Salary))
+salary2005$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2005$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2005[["Player"]] <- Player
+nbadata2005 <- merge(x = nbadata2005, y = salary2005, by = "Player")
+nbadata2005[is.na(nbadata2005)] <- 0
+nbadata2005 <- subset(nbadata2005, G > 20)
+
+nbadata2004 <- read.csv("nbaStats2004.csv")
+salary2004 <- read.csv("nbaSalary2004.csv")
+Player <-  stri_trans_general(str = nbadata2004$Player, id = "Latin-ASCII")
+salary2004$Salary <- as.numeric(gsub('[$,]', '', salary2004$Salary))
+salary2004$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2004$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2004[["Player"]] <- Player
+nbadata2004 <- merge(x = nbadata2004, y = salary2004, by = "Player")
+nbadata2004[is.na(nbadata2004)] <- 0
+nbadata2004 <- subset(nbadata2004, G > 20)
+
+nbadata2003 <- read.csv("nbaStats2003.csv")
+salary2003 <- read.csv("nbaSalary2003.csv")
+Player <-  stri_trans_general(str = nbadata2003$Player, id = "Latin-ASCII")
+salary2003$Salary <- as.numeric(gsub('[$,]', '', salary2003$Salary))
+salary2003$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2003$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2003[["Player"]] <- Player
+nbadata2003 <- merge(x = nbadata2003, y = salary2003, by = "Player")
+nbadata2003[is.na(nbadata2003)] <- 0
+nbadata2003 <- subset(nbadata2003, G > 20)
+
+nbadata2002 <- read.csv("nbaStats2002.csv")
+salary2002 <- read.csv("nbaSalary2002.csv")
+Player <-  stri_trans_general(str = nbadata2002$Player, id = "Latin-ASCII")
+salary2002$Salary <- as.numeric(gsub('[$,]', '', salary2002$Salary))
+salary2002$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2002$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2002[["Player"]] <- Player
+nbadata2002 <- merge(x = nbadata2002, y = salary2002, by = "Player")
+nbadata2002[is.na(nbadata2002)] <- 0
+nbadata2002 <- subset(nbadata2002, G > 20)
+
+nbadata2001 <- read.csv("nbaStats2001.csv")
+salary2001 <- read.csv("nbaSalary2001.csv")
+Player <-  stri_trans_general(str = nbadata2001$Player, id = "Latin-ASCII")
+salary2001$Salary <- as.numeric(gsub('[$,]', '', salary2001$Salary))
+salary2001$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2001$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2001[["Player"]] <- Player
+nbadata2001 <- merge(x = nbadata2001, y = salary2001, by = "Player")
+nbadata2001[is.na(nbadata2001)] <- 0
+nbadata2001 <- subset(nbadata2001, G > 20)
+
+nbadata2000 <- read.csv("nbaStats2000.csv")
+salary2000 <- read.csv("nbaSalary2000.csv")
+Player <-  stri_trans_general(str = nbadata2000$Player, id = "Latin-ASCII")
+salary2000$Salary <- as.numeric(gsub('[$,]', '', salary2000$Salary))
+salary2000$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary2000$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata2000[["Player"]] <- Player
+salary2000$Salary..Inflation.. <- NULL
+nbadata2000 <- merge(x = nbadata2000, y = salary2000, by = "Player")
+nbadata2000[is.na(nbadata2000)] <- 0
+nbadata2000 <- subset(nbadata2000, G > 20)
+
+nbadata1999 <- read.csv("nbaStats1999.csv")
+salary1999 <- read.csv("nbaSalary1999.csv")
+Player <-  stri_trans_general(str = nbadata1999$Player, id = "Latin-ASCII")
+salary1999$Salary <- as.numeric(gsub('[$,]', '', salary1999$Salary))
+salary1999$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary1999$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata1999[["Player"]] <- Player
+nbadata1999 <- merge(x = nbadata1999, y = salary1999, by = "Player")
+nbadata1999[is.na(nbadata1999)] <- 0
+nbadata1999 <- subset(nbadata1999, G > 20)
+
+nbadata1998 <- read.csv("nbaStats1998.csv")
+salary1998 <- read.csv("nbaSalary1998.csv")
+Player <-  stri_trans_general(str = nbadata1998$Player, id = "Latin-ASCII")
+salary1998$Salary <- as.numeric(gsub('[$,]', '', salary1998$Salary))
+salary1998$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary1998$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata1998[["Player"]] <- Player
+nbadata1998 <- merge(x = nbadata1998, y = salary1998, by = "Player")
+nbadata1998[is.na(nbadata1998)] <- 0
+nbadata1998 <- subset(nbadata1998, G > 20)
+
+nbadata1997 <- read.csv("nbaStats1997.csv")
+salary1997 <- read.csv("nbaSalary1997.csv")
+Player <-  stri_trans_general(str = nbadata1997$Player, id = "Latin-ASCII")
+salary1997$Salary <- as.numeric(gsub('[$,]', '', salary1997$Salary))
+salary1997$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary1997$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata1997[["Player"]] <- Player
+nbadata1997 <- merge(x = nbadata1997, y = salary1997, by = "Player")
+nbadata1997[is.na(nbadata1997)] <- 0
+nbadata1997 <- subset(nbadata1997, G > 20)
+
+nbadata1996 <- read.csv("nbaStats1996.csv")
+salary1996 <- read.csv("nbaSalary1996.csv")
+Player <-  stri_trans_general(str = nbadata1996$Player, id = "Latin-ASCII")
+salary1996$Salary <- as.numeric(gsub('[$,]', '', salary1996$Salary))
+salary1996$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary1996$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata1996[["Player"]] <- Player
+nbadata1996 <- merge(x = nbadata1996, y = salary1996, by = "Player")
+nbadata1996[is.na(nbadata1996)] <- 0
+nbadata1996 <- subset(nbadata1996, G > 20)
+
+nbadata1995 <- read.csv("nbaStats1995.csv")
+salary1995 <- read.csv("nbaSalary1995.csv")
+Player <-  stri_trans_general(str = nbadata1995$Player, id = "Latin-ASCII")
+salary1995$Salary <- as.numeric(gsub('[$,]', '', salary1995$Salary))
+salary1995$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary1995$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata1995[["Player"]] <- Player
+nbadata1995 <- merge(x = nbadata1995, y = salary1995, by = "Player")
+nbadata1995[is.na(nbadata1995)] <- 0
+nbadata1995 <- subset(nbadata1995, G > 20)
+
+nbadata1994 <- read.csv("nbaStats1994.csv")
+salary1994 <- read.csv("nbaSalary1994.csv")
+Player <-  stri_trans_general(str = nbadata1994$Player, id = "Latin-ASCII")
+salary1994$Salary <- as.numeric(gsub('[$,]', '', salary1994$Salary))
+salary1994$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary1994$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata1994[["Player"]] <- Player
+nbadata1994 <- merge(x = nbadata1994, y = salary1994, by = "Player")
+nbadata1994[is.na(nbadata1994)] <- 0
+nbadata1994 <- subset(nbadata1994, G > 20)
+
+nbadata1993 <- read.csv("nbaStats1993.csv")
+salary1993 <- read.csv("nbaSalary1993.csv")
+Player <-  stri_trans_general(str = nbadata1993$Player, id = "Latin-ASCII")
+salary1993$Salary <- as.numeric(gsub('[$,]', '', salary1993$Salary))
+salary1993$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary1993$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata1993[["Player"]] <- Player
+nbadata1993 <- merge(x = nbadata1993, y = salary1993, by = "Player")
+nbadata1993[is.na(nbadata1993)] <- 0
+nbadata1993 <- subset(nbadata1993, G > 20)
+
+nbadata1992 <- read.csv("nbaStats1992.csv")
+salary1992 <- read.csv("nbaSalary1992.csv")
+Player <-  stri_trans_general(str = nbadata1992$Player, id = "Latin-ASCII")
+salary1992$Salary <- as.numeric(gsub('[$,]', '', salary1992$Salary))
+salary1992$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary1992$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata1992[["Player"]] <- Player
+nbadata1992 <- merge(x = nbadata1992, y = salary1992, by = "Player")
+nbadata1992[is.na(nbadata1992)] <- 0
+nbadata1992 <- subset(nbadata1992, G > 20)
+
+nbadata1991 <- read.csv("nbaStats1991.csv")
+salary1991 <- read.csv("nbaSalary1991.csv")
+Player <-  stri_trans_general(str = nbadata1991$Player, id = "Latin-ASCII")
+salary1991$Salary <- as.numeric(gsub('[$,]', '', salary1991$Salary))
+salary1991$Salary..Inflation. <- as.numeric(gsub('[$,]', '', salary1991$Salary..Inflation.))
+Player <- gsub("\\\\.*", "", Player)
+Player <- gsub("\\*.*", "", Player)
+nbadata1991[["Player"]] <- Player
+nbadata1991 <- merge(x = nbadata1991, y = salary1991, by = "Player")
+nbadata1991[is.na(nbadata1991)] <- 0
+nbadata1991 <- subset(nbadata1991, G > 20)
+
+#Combine all seasons into one dataset
+nbadata <- rbind(nbadata2020, nbadata2019, nbadata2018, nbadata2017, nbadata2016, nbadata2015, nbadata2014,nbadata2013, nbadata2012, nbadata2011, nbadata2010, nbadata2009, nbadata2008, nbadata2007,
+nbadata2006, nbadata2005, nbadata2004, nbadata2003, nbadata2002, nbadata2001, nbadata2000, nbadata1999,
+nbadata1998, nbadata1997, nbadata1996, nbadata1995, nbadata1994, nbadata1993, nbadata1992,
+nbadata1991)
+row.names(nbadata) <- NULL
+
+nbadata <- nbadata %>%rename("FGP" = FG., "3PM" = X3P, "3PA" = X3PA, "3PP" = X3P., "2PM" = X2P, "2PA" = X2PA,
+                  "2PP" = X2P., "eFG" = eFG., "FTM" = FT, "FTP" = FT., "TS" = TS., "3PAr" = X3PAr,
+                  "ORBP" = ORB., "DRBP" = DRB., "TRBP" = TRB., "ASTP" = AST., "STLP" = STL., "BLKP" = BLK.,
+                  "TOVP" = TOV., "USG" = USG., "WS48" = WS.48, "SalaryIn" = Salary..Inflation.)
+```
+
+```{r}
+#Salary is highly left skewed so we'll create another variable to predict.
+#A replacement for salary is percent of cap space taken
+
+#A simple explanation for those unfamiliar with Cap Space:
+#Cap Space is the amount of money a team is allowed to spend a season
+#Let's say the Cap Space is $100. If a player earns $30, they will take up 30% of the cap space.
+#This is a better variable to use because it is not skewed (it is roughly normal)
+
+#Create a new column containing the league cap space for the NBA Season
+nbadata$Cap[nbadata$Season == 2020] <- 109140000
+nbadata$Cap[nbadata$Season == 2019] <- 101869000
+nbadata$Cap[nbadata$Season == 2018] <- 99093000
+nbadata$Cap[nbadata$Season == 2017] <- 94143000
+nbadata$Cap[nbadata$Season == 2016] <- 70000000
+nbadata$Cap[nbadata$Season == 2015] <- 63065000
+nbadata$Cap[nbadata$Season == 2014] <- 58679000
+nbadata$Cap[nbadata$Season == 2013] <- 58044000
+nbadata$Cap[nbadata$Season == 2012] <- 58044000
+nbadata$Cap[nbadata$Season == 2011] <- 58044000
+nbadata$Cap[nbadata$Season == 2010] <- 57700000
+nbadata$Cap[nbadata$Season == 2009] <- 58680000
+nbadata$Cap[nbadata$Season == 2008] <- 55630000
+nbadata$Cap[nbadata$Season == 2007] <- 53135000
+nbadata$Cap[nbadata$Season == 2006] <- 49500000
+nbadata$Cap[nbadata$Season == 2005] <- 43870000
+nbadata$Cap[nbadata$Season == 2004] <- 43840000
+nbadata$Cap[nbadata$Season == 2003] <- 40271000
+nbadata$Cap[nbadata$Season == 2002] <- 42500000
+nbadata$Cap[nbadata$Season == 2001] <- 35500000
+nbadata$Cap[nbadata$Season == 2000] <- 34000000
+nbadata$Cap[nbadata$Season == 1999] <- 30000000
+nbadata$Cap[nbadata$Season == 1998] <- 26900000
+nbadata$Cap[nbadata$Season == 1997] <- 24363000
+nbadata$Cap[nbadata$Season == 1996] <- 23000000
+nbadata$Cap[nbadata$Season == 1995] <- 15964000
+nbadata$Cap[nbadata$Season == 1994] <- 15175000
+nbadata$Cap[nbadata$Season == 1993] <- 14000000
+nbadata$Cap[nbadata$Season == 1992] <- 12500000
+nbadata$Cap[nbadata$Season == 1991] <- 11871000
+
+#Create a new column pCap that represents salary/Cap aka percent of cap space a player takes up
+nbadata$pCap <- nbadata$Salary/nbadata$Cap
+
+```
+
+```{r}
+#combine player and season and turn that into the row name, ex: Lebron James = Lebron James 2020
+nbadata$Player <- paste0(nbadata$Player, " " ,nbadata$Season)
+nbadata <- nbadata[!duplicated(nbadata$Player), ]
+
+rownames(nbadata) <- nbadata[,1]
+nbadata <- nbadata[,-1]
+```
